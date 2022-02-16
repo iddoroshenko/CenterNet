@@ -124,9 +124,9 @@ class PoseResNet(nn.Module):
 
         # used for deconv layers
         self.deconv_layers = self._make_deconv_layer(
-            4,
-            [256, 256, 256, 256],
-            [4, 4, 4, 4],
+            3,
+            [256, 256, 256],
+            [4, 4, 4],
         )
         # self.final_layer = []
 

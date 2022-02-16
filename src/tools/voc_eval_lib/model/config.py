@@ -297,14 +297,13 @@ def get_output_dir(imdb, weights_filename):
   A canonical path is built using the name from an imdb and a network
   (if not None).
   """
-  return '/content/drive/MyDrive/диплом/exp'
-  #outdir = osp.abspath(osp.join(__C.ROOT_DIR, 'output', __C.EXP_DIR, imdb.name))
-  #if weights_filename is None:
-  #  weights_filename = 'default'
-  #outdir = osp.join(outdir, weights_filename)
-  #if not os.path.exists(outdir):
-  #  os.makedirs(outdir)
-  #return outdir
+  outdir = osp.abspath(osp.join(__C.ROOT_DIR, 'output', __C.EXP_DIR, imdb.name))
+  if weights_filename is None:
+    weights_filename = 'default'
+  outdir = osp.join(outdir, weights_filename)
+  if not os.path.exists(outdir):
+    os.makedirs(outdir)
+  return outdir
 
 
 def get_output_tb_dir(imdb, weights_filename):

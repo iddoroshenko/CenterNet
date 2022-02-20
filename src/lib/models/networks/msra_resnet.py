@@ -258,7 +258,7 @@ class PoseResNet(nn.Module):
             url = model_urls['resnet{}'.format(num_layers)]
             pretrained_state_dict = model_zoo.load_url(url)
             pretrained_state_dict = {k: v for k, v in pretrained_state_dict.items() if
-                       (k in self) and (self[k].shape == pretrained_state_dict[k].shape)}
+                       (k in self.state_dict()) and (self.state_dict()[k].shape == pretrained_state_dict[k].shape)}
             print('=> loading pretrained model {}'.format(url))
             self.load_state_dict(pretrained_state_dict, strict=False)
         else:

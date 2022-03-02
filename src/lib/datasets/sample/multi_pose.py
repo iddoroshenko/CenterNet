@@ -34,7 +34,10 @@ class MultiPoseDataset(data.Dataset):
     anns = self.coco.loadAnns(ids=ann_ids)
     num_objs = min(len(anns), self.max_objs)
 
-    img = cv2.imread(img_path)
+    image_i = cv2.imread(img_path)
+    image_v = cv2.imread(img_path.replace('2017', 'v'))
+
+    img = np.concatenate((image_v, cv2.cvtColor(image_i, cv2.COLOR_BGR2GRAY)[...,None]), axis=-1)
 
     height, width = img.shape[0], img.shape[1]
     c = np.array([img.shape[1] / 2., img.shape[0] / 2.], dtype=np.float32)

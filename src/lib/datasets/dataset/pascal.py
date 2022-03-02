@@ -34,7 +34,7 @@ class PascalVOC(data.Dataset):
     self._valid_ids = np.arange(1, 21, dtype=np.int32)
     self.cat_ids = {v: i for i, v in enumerate(self._valid_ids)}
     self._data_rng = np.random.RandomState(123)
-    self._eig_val = np.array([0.2141788, 0.01817699, 0.00341571],
+    self._eig_val = np.array([0.2141788, 0.01817699, 0.00341571, 0],
                              dtype=np.float32)
     self._eig_vec = np.array([
         [-0.58752847, -0.69563484, 0.41340352],

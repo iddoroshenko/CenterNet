@@ -13,6 +13,8 @@ import numpy as np
 import cv2
 import random
 
+from torch import eig
+
 def flip(img):
   return img[:, :, ::-1].copy()  
 
@@ -200,6 +202,7 @@ def grayscale(image):
 
 def lighting_(data_rng, image, alphastd, eigval, eigvec):
     alpha = data_rng.normal(scale=alphastd, size=(3, ))
+    print (eigvec, eigval, alpha)
     image += np.dot(eigvec, eigval * alpha) 
 
 def blend_(alpha, image1, image2):

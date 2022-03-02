@@ -202,8 +202,9 @@ def grayscale(image):
 
 def lighting_(data_rng, image, alphastd, eigval, eigvec):
     alpha = data_rng.normal(scale=alphastd, size=(3, ))
-    print (eigvec, eigval, alpha)
-    image += np.dot(eigvec, eigval * alpha) 
+    arr = np.dot(eigvec, eigval * alpha)
+    arr = np.append(arr, 0)
+    image += arr 
 
 def blend_(alpha, image1, image2):
     image1 *= alpha

@@ -76,7 +76,7 @@ class MultiPoseDataset(data.Dataset):
     inp = (inp.astype(np.float32) / 255.)
     if self.split == 'train' and not self.opt.no_color_aug:
       color_aug(self._data_rng, inp, self._eig_val, self._eig_vec)
-    inp = (inp - np.append(self.mean, 0.28)) / np.append(self.std, 0.3344)
+    inp = (inp - np.append(self.mean, 0.28)) / np.append(self.std, 0.1717)
     inp = inp.transpose(2, 0, 1)
 
     output_res = self.opt.output_res

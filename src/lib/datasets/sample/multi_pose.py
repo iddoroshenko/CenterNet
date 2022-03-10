@@ -35,7 +35,7 @@ class MultiPoseDataset(data.Dataset):
     num_objs = min(len(anns), self.max_objs)
 
     image_i = cv2.imread(img_path)
-    image_v = cv2.imread(img_path.replace('2017', 'v'))
+    image_v = cv2.imread(img_path.replace('2017/', 'v/'))
 
     img = np.concatenate((image_v, cv2.cvtColor(image_i, cv2.COLOR_BGR2GRAY)[...,None]), axis=-1)
 

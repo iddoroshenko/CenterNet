@@ -89,7 +89,10 @@ class BaseDetector(object):
     if isinstance(image_or_path_or_tensor, np.ndarray):
       image = image_or_path_or_tensor
     elif type(image_or_path_or_tensor) == type (''): 
-      image = cv2.imread(image_or_path_or_tensor)
+      image_v = cv2.imread(image_or_path_or_tensor.replace('2017/', 'v/'))
+      image_i = cv2.imread(image_or_path_or_tensor)
+      image = np.concatenate((image_v, cv2.cvtColor(image_i, cv2.COLOR_BGR2GRAY)[...,None]), axis=-1)
+
     else:
       image = image_or_path_or_tensor['image'][0].numpy()
       pre_processed_images = image_or_path_or_tensor

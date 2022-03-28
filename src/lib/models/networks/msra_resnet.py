@@ -112,7 +112,7 @@ class PoseResNet(nn.Module):
         self.heads = heads
 
         super(PoseResNet, self).__init__()
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
+        self.conv1 = nn.Conv2d(4, 64, kernel_size=7, stride=2, padding=3,
                                bias=False)
         self.bn1 = nn.BatchNorm2d(64, momentum=BN_MOMENTUM)
         self.relu = nn.ReLU(inplace=True)
@@ -209,6 +209,7 @@ class PoseResNet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
+        x = x.float()
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
@@ -257,6 +258,8 @@ class PoseResNet(nn.Module):
             #pretrained_state_dict = torch.load(pretrained)
             url = model_urls['resnet{}'.format(num_layers)]
             pretrained_state_dict = model_zoo.load_url(url)
+            pretrained_state_dict = {k: v for k, v in pretrained_state_dict.items() if
+                       (k in self.state_dict()) and (self.state_dict()[k].shape == pretrained_state_dict[k].shape)}
             print('=> loading pretrained model {}'.format(url))
             self.load_state_dict(pretrained_state_dict, strict=False)
         else:

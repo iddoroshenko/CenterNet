@@ -55,7 +55,7 @@ class BaseDetector(object):
       flags=cv2.INTER_LINEAR)
     inp_image = ((inp_image / 255. - self.mean) / self.std).astype(np.float32)
 
-    images = inp_image.transpose(2, 0, 1).reshape(1, 3, inp_height, inp_width)
+    images = inp_image.transpose(2, 0, 1).reshape(1, 4, inp_height, inp_width)
     if self.opt.flip_test:
       images = np.concatenate((images, images[:, :, :, ::-1]), axis=0)
     images = torch.from_numpy(images)

@@ -53,7 +53,8 @@ class COCOHP(data.Dataset):
 
     print('==> initializing coco 2017 {} data.'.format(split))
     self.coco = coco.COCO(self.annot_path)
-    image_ids = self.coco.getImgIds()
+    image_ids = self.coco.getImgIds()[:10]
+    print(image_ids)
 
     if split == 'train':
       self.images = []

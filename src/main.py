@@ -42,27 +42,18 @@ def main(opt):
   trainer.set_device(opt.gpus, opt.chunk_sizes, opt.device)
 
   print('Setting up data...')
-  val_loader = torch.utils.data.DataLoader(
-      Dataset(opt, 'val'), 
-      batch_size=1, 
-      shuffle=False,
-      num_workers=1,
-      pin_memory=True
-  )
-
-  if opt.test:
-    _, preds = trainer.val(0, val_loader)
-    val_loader.dataset.run_eval(preds, opt.save_dir)
-    return
-
   train_loader = torch.utils.data.DataLoader(
       Dataset(opt, 'train'), 
       batch_size=opt.batch_size, 
-      shuffle=True,
+      shuffle=False,
       num_workers=opt.num_workers,
       pin_memory=True,
-      drop_last=True
   )
+
+  if opt.test:
+    _, preds = trainer.val(0, train_loader)
+    train_loader.dataset.run_eval(preds, opt.save_dir)
+    return
 
   print('Starting training...')
   best = 1e10
@@ -81,7 +72,7 @@ def main(opt):
       save_model(os.path.join(opt.save_dir, 'model_{}.pth'.format(mark)), 
                  epoch, model, optimizer)
       with torch.no_grad():
-        log_dict_val, preds = trainer.val(epoch, val_loader)
+        log_dict_val, preds = trainer.val(epoch, train_loader)
       for k, v in log_dict_val.items():
         logger.scalar_summary('val_{}'.format(k), v, epoch)
         logger.write('{} {:8f} | '.format(k, v))

@@ -26,8 +26,8 @@ class BaseDetector(object):
     self.model = self.model.to(opt.device)
     self.model.eval()
 
-    self.mean = np.array(opt.mean, dtype=np.float32).reshape(1, 1, 4)
-    self.std = np.array(opt.std, dtype=np.float32).reshape(1, 1, 4)
+    self.mean = np.array(opt.mean, dtype=np.float32).reshape(1, 1, 3)
+    self.std = np.array(opt.std, dtype=np.float32).reshape(1, 1, 3)
     self.max_per_image = 100
     self.num_classes = opt.num_classes
     self.scales = opt.test_scales
@@ -55,7 +55,7 @@ class BaseDetector(object):
       flags=cv2.INTER_LINEAR)
     inp_image = ((inp_image / 255. - self.mean) / self.std).astype(np.float32)
 
-    images = inp_image.transpose(2, 0, 1).reshape(1, 4, inp_height, inp_width)
+    images = inp_image.transpose(2, 0, 1).reshape(1, 3, inp_height, inp_width)
     if self.opt.flip_test:
       images = np.concatenate((images, images[:, :, :, ::-1]), axis=0)
     images = torch.from_numpy(images)
@@ -91,7 +91,7 @@ class BaseDetector(object):
     elif type(image_or_path_or_tensor) == type (''): 
       image_v = cv2.imread(image_or_path_or_tensor.replace('2017/', 'v/'))
       image_i = cv2.imread(image_or_path_or_tensor)
-      image = np.concatenate((image_v, cv2.cvtColor(image_i, cv2.COLOR_BGR2GRAY)[...,None]), axis=-1)
+      image = image_v * 1.0 + image_i * 0.0
 
     else:
       image = image_or_path_or_tensor['image'][0].numpy()

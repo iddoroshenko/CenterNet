@@ -51,7 +51,7 @@ class COCOHP(data.Dataset):
     self.split = split
     self.opt = opt
 
-    print('==> initializing coco 2017 {} data.'.format(split))
+    print('!!!!==> initializing coco 2017 {} data.'.format(split))
     self.coco = coco.COCO(self.annot_path)
     image_ids = self.coco.getImgIds()
 

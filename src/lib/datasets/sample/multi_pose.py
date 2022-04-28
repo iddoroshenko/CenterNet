@@ -37,7 +37,7 @@ class MultiPoseDataset(data.Dataset):
     image_i = cv2.imread(img_path)
     image_v = cv2.imread(img_path.replace('2017/', 'v/'))
 
-    img = np.concatenate((image_v, cv2.cvtColor(image_i, cv2.COLOR_BGR2GRAY)[...,None]), axis=-1)
+    img = image_v * 1.0 + image_1 * 0.0
 
     height, width = img.shape[0], img.shape[1]
     c = np.array([img.shape[1] / 2., img.shape[0] / 2.], dtype=np.float32)
@@ -76,7 +76,7 @@ class MultiPoseDataset(data.Dataset):
     inp = (inp.astype(np.float32) / 255.)
     if self.split == 'train' and not self.opt.no_color_aug:
       color_aug(self._data_rng, inp, self._eig_val, self._eig_vec)
-    inp = (inp - np.append(self.mean, 0.28)) / np.append(self.std, 0.1717)
+    inp = (inp - self.mean) / self.std
     inp = inp.transpose(2, 0, 1)
 
     output_res = self.opt.output_res

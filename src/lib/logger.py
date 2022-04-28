@@ -5,6 +5,7 @@ from __future__ import print_function
 # Code referenced from https://gist.github.com/gyglim/1f8dfb1b5c82627ae3efcfbbadb9f514
 import os
 import time
+import numpy as np
 import sys
 import torch
 USE_TENSORBOARD = True
@@ -70,3 +71,17 @@ class Logger(object):
     """Log a scalar variable."""
     if USE_TENSORBOARD:
       self.writer.add_scalar(tag, value, step)
+  
+  def img_tensorboard(self, images, step, data='val'):
+    if USE_TENSORBOARD:
+      #img = img.transpose(2, 0, 1)
+      batch_size = len(images)
+      var = len(images[0])
+      for j in range(var):
+        imgs = []
+        tag = images[0][j][1]
+        for i in range(batch_size):
+          img = images[i][j][0].transpose(2, 0, 1)
+          imgs.append(img)
+
+        self.writer.add_images(data + '_' + tag, np.array(imgs), step)

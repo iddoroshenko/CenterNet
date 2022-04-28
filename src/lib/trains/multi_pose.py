@@ -112,7 +112,7 @@ class MultiPoseTrainer(BaseTrainer):
     for i in range(1):
       debugger = Debugger(
         dataset=opt.dataset, ipynb=(opt.debug==3), theme=opt.debugger_theme)
-      img = batch['input'][i].detach().cpu().numpy().transpose(1, 2, 0)
+      img = batch['input'][i].detach().cpu().numpy().transpose(1, 2, 0)[:, :, :3]
       img = np.clip(((
         img * opt.std + opt.mean) * 255.), 0, 255).astype(np.uint8)
       pred = debugger.gen_colormap(output['hm'][i].detach().cpu().numpy())
@@ -140,10 +140,7 @@ class MultiPoseTrainer(BaseTrainer):
         debugger.add_blend_img(img, pred, 'pred_hmhp')
         debugger.add_blend_img(img, gt, 'gt_hmhp')
 
-      if opt.debug == 4:
-        debugger.save_all_imgs(opt.debug_dir, prefix='{}'.format(iter_id))
-      else:
-        debugger.show_all_imgs(pause=True)
+      return debugger.save_all_imgs(opt.debug_dir, prefix='{}'.format(iter_id))
 
   def save_result(self, output, batch, results):
     reg = output['reg'] if self.opt.reg_offset else None

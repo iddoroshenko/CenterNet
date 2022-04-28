@@ -244,8 +244,11 @@ class Debugger(object):
         idx = 0
       prefix=idx
       np.savetxt(path + '/id.txt', np.ones(1) * (idx + 1), fmt='%d')
+    imgs = []
     for i, v in self.imgs.items():
-      cv2.imwrite(path + '/{}{}.png'.format(prefix, i), v)
+      #cv2.imwrite(path + '/{}{}.png'.format(prefix, i), v)
+      imgs.append([v, i])
+    return imgs
 
   def remove_side(self, img_id, img):
     if not (img_id in self.imgs):

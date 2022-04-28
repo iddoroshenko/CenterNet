@@ -58,6 +58,7 @@ class BaseTrainer(object):
     num_iters = len(data_loader) if opt.num_iters < 0 else opt.num_iters
     bar = Bar('{}/{}'.format(opt.task, opt.exp_id), max=num_iters)
     end = time.time()
+    imgs = []
     for iter_id, batch in enumerate(data_loader):
       if iter_id >= num_iters:
         break
@@ -90,10 +91,9 @@ class BaseTrainer(object):
           print('{}/{}| {}'.format(opt.task, opt.exp_id, Bar.suffix)) 
       else:
         bar.next()
-      
-      if opt.debug > 0:
-        self.debug(batch, output, iter_id)
-      
+      if phase == 'val':
+        img = self.debug(batch, output, iter_id)
+        imgs.append(img)
       if opt.test:
         self.save_result(output, batch, results)
       del output, loss, loss_stats
@@ -101,7 +101,7 @@ class BaseTrainer(object):
     bar.finish()
     ret = {k: v.avg for k, v in avg_loss_stats.items()}
     ret['time'] = bar.elapsed_td.total_seconds() / 60.
-    return ret, results
+    return ret, results, imgs
   
   def debug(self, batch, output, iter_id):
     raise NotImplementedError

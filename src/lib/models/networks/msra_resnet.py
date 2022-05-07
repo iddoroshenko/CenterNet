@@ -116,10 +116,12 @@ class PoseResNet(nn.Module):
                                bias=False)
         self.conv1_ir = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3,
                                bias=False)
-        self.bn1 = nn.BatchNorm2d(64, momentum=BN_MOMENTUM)
+        self.bn1_ir = nn.BatchNorm2d(64, momentum=BN_MOMENTUM)
+        self.bn1_rgb = nn.BatchNorm2d(64, momentum=BN_MOMENTUM)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        self.layer1 = self._make_layer(block, 64, layers[0])
+        self.layer1_ir = self._make_layer(block, 64, layers[0])
+        self.layer1_rgb = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 256, layers[1], stride=2, inpl=128)
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
@@ -221,16 +223,16 @@ class PoseResNet(nn.Module):
         x_rgb = self.conv1_rgb(x_rgb)
         x_ir = self.conv1_ir(x_ir)
 
-        x_rgb = self.bn1(x_rgb)
-        x_ir = self.bn1(x_ir)
+        x_rgb = self.bn1_rgb(x_rgb)
+        x_ir = self.bn1_ir(x_ir)
 
         x_rgb = self.relu(x_rgb)
         x_ir = self.relu(x_ir)
         x_rgb = self.maxpool(x_rgb)
         x_ir = self.maxpool(x_ir)
 
-        x_rgb = self.layer1(x_rgb)
-        x_ir = self.layer1(x_ir)
+        x_rgb = self.layer1_rgb(x_rgb)
+        x_ir = self.layer1_ir(x_ir)
 # Given groups=1, weight of size [256, 64, 3, 3], expected input[8, 128, 128, 128] to have 64 channels, but got 128 channels instead
         x = torch.cat([x_ir, x_rgb], dim=1)
 

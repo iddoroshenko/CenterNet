@@ -201,8 +201,14 @@ def grayscale(image):
     return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 def lighting_(data_rng, image, alphastd, eigval, eigvec):
-    alpha = data_rng.normal(scale=alphastd, size=(3, ))
-    image += np.dot(eigvec, eigval * alpha)
+    alpha = data_rng.normal(scale=alphastd, size=(4, ))
+    eigval = [0.07700774, 0.02378778, 0.00583246, 0.00048353]
+    eigvec = [[-0.3107886 ,  0.07642434,  0.40892704, -0.09197536],
+       [-0.38877042,  0.08045257, -0.01573141,  0.23145132],
+       [-0.37653098,  0.08644812, -0.28382624, -0.15445837],
+       [ 0.08397649,  0.07055843, -0.00063423,  0.00737184]]
+    arr = np.dot(eigvec, eigval * alpha)
+    image += arr
 
 def blend_(alpha, image1, image2):
     image1 *= alpha

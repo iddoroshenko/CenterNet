@@ -112,13 +112,15 @@ class PoseResNet(nn.Module):
         self.heads = heads
 
         super(PoseResNet, self).__init__()
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
+        self.conv1_rgb = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
+                               bias=False)
+        self.conv1_ir = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3,
                                bias=False)
         self.bn1 = nn.BatchNorm2d(64, momentum=BN_MOMENTUM)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.layer1 = self._make_layer(block, 64, layers[0])
-        self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
+        self.layer2 = self._make_layer(block, 256, layers[1], stride=2, inpl=128)
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
 
@@ -151,8 +153,10 @@ class PoseResNet(nn.Module):
 
         # self.final_layer = nn.ModuleList(self.final_layer)
 
-    def _make_layer(self, block, planes, blocks, stride=1):
+    def _make_layer(self, block, planes, blocks, stride=1, inpl=-1):
         downsample = None
+        if inpl != -1:
+            self.inplanes = inpl
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
                 nn.Conv2d(self.inplanes, planes * block.expansion,
@@ -209,13 +213,27 @@ class PoseResNet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
-        x = x.float()
-        x = self.conv1(x)
-        x = self.bn1(x)
-        x = self.relu(x)
-        x = self.maxpool(x)
 
-        x = self.layer1(x)
+        x = x.float()
+        x_rgb = x[:, :3]
+        x_ir = x[:, 3:]
+
+        x_rgb = self.conv1_rgb(x_rgb)
+        x_ir = self.conv1_ir(x_ir)
+
+        x_rgb = self.bn1(x_rgb)
+        x_ir = self.bn1(x_ir)
+
+        x_rgb = self.relu(x_rgb)
+        x_ir = self.relu(x_ir)
+        x_rgb = self.maxpool(x_rgb)
+        x_ir = self.maxpool(x_ir)
+
+        x_rgb = self.layer1(x_rgb)
+        x_ir = self.layer1(x_ir)
+# Given groups=1, weight of size [256, 64, 3, 3], expected input[8, 128, 128, 128] to have 64 channels, but got 128 channels instead
+        x = torch.cat([x_ir, x_rgb], dim=1)
+
         x = self.layer2(x)
         x = self.layer3(x)
         x = self.layer4(x)

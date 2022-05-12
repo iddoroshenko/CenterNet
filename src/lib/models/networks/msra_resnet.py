@@ -122,9 +122,11 @@ class PoseResNet(nn.Module):
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.layer1_ir = self._make_layer(block, 64, layers[0])
         self.layer1_rgb = self._make_layer(block, 64, layers[0])
-        self.layer2 = self._make_layer(block, 256, layers[1], stride=2, inpl=128)
-        self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
-        self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
+        self.layer2_ir = self._make_layer(block, 128, layers[1], stride=2, inpl=64)
+        self.layer2_rgb = self._make_layer(block, 128, layers[1], stride=2, inpl=64)
+        self.layer3_ir = self._make_layer(block, 256, layers[2], stride=2, inpl=128)
+        self.layer3_rgb = self._make_layer(block, 256, layers[2], stride=2, inpl=128)
+        self.layer4 = self._make_layer(block, 1024, layers[3], stride=2, inpl=512)
 
         # used for deconv layers
         self.deconv_layers = self._make_deconv_layer(
@@ -141,7 +143,7 @@ class PoseResNet(nn.Module):
                 nn.Conv2d(256, head_conv,
                   kernel_size=3, padding=1, bias=True),
                 nn.ReLU(inplace=True),
-                nn.Conv2d(head_conv, num_output, 
+                nn.Conv2d(head_conv, num_output,
                   kernel_size=1, stride=1, padding=0))
           else:
             fc = nn.Conv2d(
@@ -233,11 +235,14 @@ class PoseResNet(nn.Module):
 
         x_rgb = self.layer1_rgb(x_rgb)
         x_ir = self.layer1_ir(x_ir)
-# Given groups=1, weight of size [256, 64, 3, 3], expected input[8, 128, 128, 128] to have 64 channels, but got 128 channels instead
-        x = torch.cat([x_ir, x_rgb], dim=1)
 
-        x = self.layer2(x)
-        x = self.layer3(x)
+        x_rgb = self.layer2_rgb(x_rgb)
+        x_ir = self.layer2_ir(x_ir)
+
+        x_rgb = self.layer3_rgb(x_rgb)
+        x_ir = self.layer3_ir(x_ir)
+
+        x = torch.cat([x_ir, x_rgb], dim=1)
         x = self.layer4(x)
 
         x = self.deconv_layers(x)

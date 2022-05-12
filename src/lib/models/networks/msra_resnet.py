@@ -112,15 +112,21 @@ class PoseResNet(nn.Module):
         self.heads = heads
 
         super(PoseResNet, self).__init__()
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
+        self.conv1_rgb = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
                                bias=False)
-        self.bn1 = nn.BatchNorm2d(64, momentum=BN_MOMENTUM)
+        self.conv1_ir = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3,
+                               bias=False)
+        self.bn1_ir = nn.BatchNorm2d(64, momentum=BN_MOMENTUM)
+        self.bn1_rgb = nn.BatchNorm2d(64, momentum=BN_MOMENTUM)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        self.layer1 = self._make_layer(block, 64, layers[0])
-        self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
-        self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
-        self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
+        self.layer1_ir = self._make_layer(block, 64, layers[0])
+        self.layer1_rgb = self._make_layer(block, 64, layers[0])
+        self.layer2_ir = self._make_layer(block, 128, layers[1], stride=2, inpl=64)
+        self.layer2_rgb = self._make_layer(block, 128, layers[1], stride=2, inpl=64)
+        self.layer3_ir = self._make_layer(block, 256, layers[2], stride=2, inpl=128)
+        self.layer3_rgb = self._make_layer(block, 256, layers[2], stride=2, inpl=128)
+        self.layer4 = self._make_layer(block, 1024, layers[3], stride=2, inpl=512)
 
         # used for deconv layers
         self.deconv_layers = self._make_deconv_layer(
@@ -137,7 +143,7 @@ class PoseResNet(nn.Module):
                 nn.Conv2d(256, head_conv,
                   kernel_size=3, padding=1, bias=True),
                 nn.ReLU(inplace=True),
-                nn.Conv2d(head_conv, num_output, 
+                nn.Conv2d(head_conv, num_output,
                   kernel_size=1, stride=1, padding=0))
           else:
             fc = nn.Conv2d(
@@ -151,8 +157,10 @@ class PoseResNet(nn.Module):
 
         # self.final_layer = nn.ModuleList(self.final_layer)
 
-    def _make_layer(self, block, planes, blocks, stride=1):
+    def _make_layer(self, block, planes, blocks, stride=1, inpl=-1):
         downsample = None
+        if inpl != -1:
+            self.inplanes = inpl
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
                 nn.Conv2d(self.inplanes, planes * block.expansion,
@@ -209,15 +217,32 @@ class PoseResNet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
-        x = x.float()
-        x = self.conv1(x)
-        x = self.bn1(x)
-        x = self.relu(x)
-        x = self.maxpool(x)
 
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
+        x = x.float()
+        x_rgb = x[:, :3]
+        x_ir = x[:, 3:]
+
+        x_rgb = self.conv1_rgb(x_rgb)
+        x_ir = self.conv1_ir(x_ir)
+
+        x_rgb = self.bn1_rgb(x_rgb)
+        x_ir = self.bn1_ir(x_ir)
+
+        x_rgb = self.relu(x_rgb)
+        x_ir = self.relu(x_ir)
+        x_rgb = self.maxpool(x_rgb)
+        x_ir = self.maxpool(x_ir)
+
+        x_rgb = self.layer1_rgb(x_rgb)
+        x_ir = self.layer1_ir(x_ir)
+
+        x_rgb = self.layer2_rgb(x_rgb)
+        x_ir = self.layer2_ir(x_ir)
+
+        x_rgb = self.layer3_rgb(x_rgb)
+        x_ir = self.layer3_ir(x_ir)
+
+        x = torch.cat([x_ir, x_rgb], dim=1)
         x = self.layer4(x)
 
         x = self.deconv_layers(x)

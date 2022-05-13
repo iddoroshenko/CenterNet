@@ -27,9 +27,8 @@ _sample_factory = {
   'multi_pose': MultiPoseDataset
 }
 
+class Dataset(dataset_factory['coco_hp'], _sample_factory['multi_pose']):
+  pass
 
 def get_dataset(dataset, task):
-  class Dataset(dataset_factory[dataset], _sample_factory[task]):
-    pass
   return Dataset
-  

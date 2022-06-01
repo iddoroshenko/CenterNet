@@ -11,7 +11,6 @@ import torch
 from models.model import create_model, load_model
 from utils.image import get_affine_transform
 from utils.debugger import Debugger
-from glpf import glpf
 
 
 class BaseDetector(object):
@@ -90,19 +89,19 @@ class BaseDetector(object):
     if isinstance(image_or_path_or_tensor, np.ndarray):
       image = image_or_path_or_tensor
     elif type(image_or_path_or_tensor) == type (''): 
-      image_v = cv2.imread(image_or_path_or_tensor.replace('2017/', 'v/'))
-      image_i = cv2.imread(image_or_path_or_tensor)
+      #image_v = cv2.imread(image_or_path_or_tensor.replace('2017/', 'v/'))
+      image = cv2.imread(image_or_path_or_tensor)
       #image = image_v * 1.0 + image_i * 0.0
       # img = image_v * 1.0 + image_i * 0.0
-      kernel = glpf.smooth_gaussian_kernel(0.4)
-      levels = 4
-      window_size = 15
+      #kernel = glpf.smooth_gaussian_kernel(0.4)
+      #levels = 4
+      #window_size = 15
 
       # image_i = resize(image_i, (int(image_i.shape[0]), int(image_i.shape[1])))
       # image_v = resize(image_v, (int(image_v.shape[0]), int(image_v.shape[1]), 3))
 
-      img_ir = cv2.cvtColor(image_i, cv2.COLOR_BGR2GRAY)
-      image = glpf.main_multimodal_fusion(image_v, img_ir, kernel, levels, window_size)
+      #img_ir = cv2.cvtColor(image_i, cv2.COLOR_BGR2GRAY)
+      #image = glpf.main_multimodal_fusion(image_v, img_ir, kernel, levels, window_size)
 
     else:
       image = image_or_path_or_tensor['image'][0].numpy()

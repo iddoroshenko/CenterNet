@@ -10,7 +10,7 @@ from utils.image import gaussian_radius, draw_umich_gaussian, draw_msra_gaussian
 from utils.image import draw_dense_reg
 import math
 
-from src.lib.datasets.sample.glpf import *
+from lib.datasets.sample.glpf import *
 
 class MultiPoseDataset(data.Dataset):
   def _coco_box_to_bbox(self, box):
@@ -32,19 +32,19 @@ class MultiPoseDataset(data.Dataset):
     anns = self.coco.loadAnns(ids=ann_ids)
     num_objs = min(len(anns), self.max_objs)
 
-    image_i = cv2.imread(img_path)
-    image_v = cv2.imread(img_path.replace('2017/', 'v/'))
+    img = cv2.imread(img_path)
+    #image_v = cv2.imread(img_path.replace('2017/', 'v/'))
 
     #img = image_v * 1.0 + image_i * 0.0
-    kernel = smooth_gaussian_kernel(0.4)
-    levels = 4
-    window_size = 15
+    #kernel = smooth_gaussian_kernel(0.4)
+    #levels = 4
+    #window_size = 15
 
     #image_i = resize(image_i, (int(image_i.shape[0]), int(image_i.shape[1])))
     #image_v = resize(image_v, (int(image_v.shape[0]), int(image_v.shape[1]), 3))
 
-    img_ir = cv2.cvtColor(image_i, cv2.COLOR_BGR2GRAY)
-    img = main_multimodal_fusion(image_v, img_ir, kernel, levels, window_size)
+    #img_ir = cv2.cvtColor(image_i, cv2.COLOR_BGR2GRAY)
+    #img = main_multimodal_fusion(image_v, img_ir, kernel, levels, window_size)
 
     height, width = img.shape[0], img.shape[1]
     c = np.array([img.shape[1] / 2., img.shape[0] / 2.], dtype=np.float32)

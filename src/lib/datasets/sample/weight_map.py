@@ -3,7 +3,7 @@ import numpy as np
 from skimage.filters.rank import entropy
 from skimage.morphology import square
 
-from src.lib.datasets.sample.pyramids import convolve
+from lib.datasets.sample.pyramids import convolve
 
 def normalized_local_entropy(image, window_size):
     """

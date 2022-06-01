@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
-from src.lib.datasets.sample.pyramids import *
-from src.lib.datasets.sample.weight_map import *
+from lib.datasets.sample.pyramids import *
+from lib.datasets.sample.weight_map import *
 
 from skimage.color import rgb2hsv, hsv2rgb, rgb2lab, lab2rgb
 from skimage.transform import resize
